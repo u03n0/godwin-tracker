@@ -1,21 +1,26 @@
-import openai
+from openai import OpenAI
 
-#Test
-client = openai.OpenAI()
-
-def chat_with_gpt(prompt):
-    completion = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[{"role": "user", "content": prompt}]
-        )
-    return completion.choices[0].message.content.strip()
+client = OpenAI(api_key='mykey')
 
 
-if __name__ == "__main__":
-    while True:
-        user_input = input("You: ")
-        if user_input.lower() in ["quit", "exit", "bye"]:
-            break
 
-        response = chat_with_gpt(user_input)
-        print("Chatbot: ", response)
+def chat_with_gpt(messages):
+    response = client.chat.completions.create(model="gpt-4",
+    messages=messages,
+    temperature=0.7,
+    max_tokens=150)
+    return response.choices[0].message.content
+
+convesation_history = [{"role": "system", "content": "You are a young, politically aware chatbot
+                        who speaks casually."}]
+
+def add_message_to_history(role, content):
+    convesation_history.append({"role": role, "content": content})
+
+def get_bot_response(user_input):
+    add_message_to_history("user", user_input)
+    bot_response = chat_with_gpt(convesation_history)
+    add_message_to_history("assistant", bot_response)
+    return bot_response
+
+
